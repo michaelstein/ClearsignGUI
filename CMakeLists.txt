@@ -26,12 +26,6 @@ set(QT_USE_QTOPENGL TRUE)
 # Sources
 #########
 
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ARCH "x64")
-else()
-    set(ARCH "x86")
-endif()
-
 set(client_HEADERS
 		
 )
