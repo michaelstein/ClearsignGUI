@@ -5,7 +5,7 @@
 #include "QtCore/QString"
 #include "QtCore/QSharedPointer"
 
-#include "QtGui/QMainWindow"
+#include "QtWidgets/QMainWindow"
 
 class MainWindow : public QMainWindow
 {

@@ -9,7 +9,7 @@
 #include "QtCore/QVariant"
 #include "QtCore/QTimer"
 
-#include "QtGui/QApplication"
+#include "QtWidgets/QApplication"
 
 #include "gui/mainwindow.h"
 
@@ -28,12 +28,3 @@ int main(int argc, char *argv[])
 
 	return qapp.exec();
 }
-
-
-#ifdef _WIN32
-// \see http://stackoverflow.com/questions/9555375/qt-cmake-vc-produce-a-command-prompt
-int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-	return main(nCmdShow, &lpCmdLine);
-}
-#endif

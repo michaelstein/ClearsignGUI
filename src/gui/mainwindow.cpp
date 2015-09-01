@@ -12,8 +12,10 @@ class MainWindow::Private
 {
 public:
 	Private(MainWindow *o)
-		: owner(o),
-		  form(nullptr)
+		: owner(o)
+		, form( nullptr )
+		, arguments()
+		, gpgIds()
 	{
 		
 	}
@@ -21,6 +23,7 @@ public:
 	MainWindow *owner;
 	Ui_MainWindowForm *form;
 	QStringList arguments;
+	QStringList gpgIds;
 };
 
 MainWindow::MainWindow( const QStringList &arguments, QWidget *parent, Qt::WindowFlags f )
@@ -51,6 +54,7 @@ void MainWindow::on_updateButton_pressed()
 {
 	// Clear list.
 	d->form->keyBox->clear();
+	d->gpgIds.clear();
 	QStringList keys;
 
 	/* Retrieve key list. */
@@ -70,14 +74,30 @@ void MainWindow::on_updateButton_pressed()
 		return;
 
 	QByteArray result = gpg.readLine();
-	QRegExp regex( "uid\\s+([a-zA-Z_\\ ]+)<(\\w+\\@[a-zA-Z\\_\\-\\.]+)>" );
+	QRegExp mailRegex( "uid\\s+([a-zA-Z_\\ ]+)<(\\w+\\@[a-zA-Z\\_\\-\\.]+)>" );
+	QRegExp idRegex( "sec\\s+[^\\/]*\\/([a-zA-Z0-9]+)\\s+\\d{4}-\\d{2}-\\d{2}" );
+	QString lastId;
+
 	while( !result.isNull() && !result.isEmpty() ) {
 		QString str( result );
 
-		int pos = regex.indexIn( str );
-		if (pos > -1) {
-			QString uid = regex.cap(2);  // EMail address.
-			keys << uid;
+		int pos = mailRegex.indexIn( str );
+		if( pos > -1 ) {
+			QString uid = mailRegex.cap(2);  // EMail address.
+
+			if( !lastId.isEmpty() ) {
+				keys << QStringLiteral( "%1 (%2)" ).arg( uid ).arg( lastId );
+				d->gpgIds << lastId;
+			} else {
+				keys << uid;
+				d->gpgIds << uid;
+			}
+
+			lastId = QString();
+		} else {
+			pos = idRegex.indexIn( str );
+			if( pos > -1 )
+				lastId = idRegex.cap( 1 );  // Key ID.
 		}
 
 		result = gpg.readLine();
@@ -96,13 +116,14 @@ void MainWindow::on_clearsignButton_pressed()
 
 	// Create GPG process.
 	QProcess gpg;
+	const QString uid = d->gpgIds.at( d->form->keyBox->currentIndex() );
 
 	// Create parameters.
 	QStringList params;
 	params << "--armor";
 	params << "--clearsign";
 	params << "--local-user";
-	params << d->form->keyBox->currentText();
+	params << uid;
 
 	// Start process.
 	gpg.start( "gpg", params );
