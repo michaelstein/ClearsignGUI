@@ -1,4 +1,4 @@
-call "%VS120COMNTOOLS%\..\..\Vc\vcvarsall.bat" amd64
+call "%VS140COMNTOOLS%\..\..\Vc\vcvarsall.bat" amd64
 
 rem Create debug build directory.
 cd /d %~dp0
